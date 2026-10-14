@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: deribit
+      POSTGRES_PASSWORD: deribit
+      POSTGRES_DB: deribit_prices
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U deribit -d deribit_prices"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://deribit:deribit@db:5432/deribit_prices
+      REDIS_URL: redis://127.0.0.1:6379/0
+      DERIBIT_BASE_URL: https://www.deribit.com/api/v2
+      TICKERS: btc_usd,eth_usd
+      FETCH_INTERVAL_SECONDS: "60"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/docs"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+volumes:
+  postgres_data:
