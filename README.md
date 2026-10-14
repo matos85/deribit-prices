@@ -150,15 +150,3 @@ pytest -q
 ```
 
 Тесты используют in-memory SQLite и моки HTTP (`aioresponses`), внешние сервисы не нужны.
-
-## Выкладка на GitLab
-
-```bash
-cd deribit-prices
-git init
-git add .
-git commit -m "Initial Deribit price tracker"
-git remote add origin git@gitlab.com:<group>/<project>.git
-git push -u origin main
-```
-
